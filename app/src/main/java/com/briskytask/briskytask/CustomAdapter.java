@@ -40,7 +40,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         holder.phone.setText(userData.get(position).getPhone());
         holder.website.setText(userData.get(position).getWebsite());
         holder.company.setText(userData.get(position).getCompany());
-        holder.timeToTravel.setText(userData.get(position).getTimeToTravel());
+        holder.eta.setText(userData.get(position).getEta());
     }
 
     @Override
@@ -58,7 +58,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         public TextView phone;
         public TextView website;
         public TextView company;
-        public TextView timeToTravel;
+        public TextView eta;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -70,7 +70,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             phone = (TextView) itemView.findViewById(R.id.phone);
             website = (TextView) itemView.findViewById(R.id.website);
             company = (TextView) itemView.findViewById(R.id.company);
-            timeToTravel = (TextView) itemView.findViewById(R.id.timetravel);
+            eta = (TextView) itemView.findViewById(R.id.eta);
         }
     }
 }

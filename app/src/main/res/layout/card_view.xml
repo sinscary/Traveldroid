@@ -126,7 +126,7 @@
                 android:textStyle="normal"
                 android:typeface="sans"/>
             <TextView
-                android:id="@+id/timetravel"
+                android:id="@+id/eta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/company"

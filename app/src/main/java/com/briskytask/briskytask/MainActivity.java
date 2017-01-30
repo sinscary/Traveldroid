@@ -47,18 +47,17 @@ public class MainActivity extends AppCompatActivity {
     private List<UserData> userData;
     private LocationManager locationManager;
     private LocationListener locationListener;
-    String origin, mode = "driving";
-    private String API = "AIzaSyD-tUsXFylNZrJwIHCf4fagJ1kjEUZjInM";
+    String origin;
+
     TextView textView;
     RequestQueue requestQueue;
-    RequestQueue requestQueue1;
     String url = "https://jsonplaceholder.typicode.com/users";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        recyclerView = (RecyclerView) findViewById(R.id.myRecyclerView);
         recyclerView.setHasFixedSize(true);
 
 
@@ -146,20 +145,18 @@ public class MainActivity extends AppCompatActivity {
                 String company = parseCompany(users);
                 String phone = ("Phone: "+users.getString("phone"));
                 String website = ("Website: "+users.getString("website"));
-                String eta = get_time_to_travel(origin, destination, API, mode);
+                getEtarrive(origin, destination, i);
 
-                UserData udata = new UserData(id, name, username, email, address, phone, website, company, eta);
+                UserData udata = new UserData(id, name, username, email, address, phone, website, company, "loading....");
                 userData.add(udata);
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        if(adapter == null){
-            adapter = new CustomAdapter(this, userData);
-            recyclerView.setAdapter(adapter);
-        }else{
-            adapter.notifyDataSetChanged();
-        }
+
+        adapter = new CustomAdapter(this, userData);
+        recyclerView.setAdapter(adapter);
+
     }
 
 
@@ -172,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
             String suite = completeAdd.getString("suite");
             String city = completeAdd.getString("city");
             String zipcode = completeAdd.getString("zipcode");
-            address = ("Address :" + street + ", " + suite + ", " + city + ", " + zipcode);
+            address = ("Address: " + street + ", " + suite + ", " + city + ", " + zipcode);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -210,16 +207,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private String get_time_to_travel(String origin, String destination, String API, String mode){
-        requestQueue1 = Volley.newRequestQueue(this);
-        String eta = null;
+    private void getEtarrive(String origin, String destination, final int index){
+        String API = "AIzaSyD-tUsXFylNZrJwIHCf4fagJ1kjEUZjInM", mode="driving";
         String google_api = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="+origin+"&destinations="
                 +destination+"s&mode="+mode+"&language=fr-FR&key="+API;
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, google_api, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        parseGoogleData(response);
+                        String eta = parseGoogleData(response);
+                        userData.get(index).setEta("ETA: "+eta);
+                        adapter.notifyDataSetChanged();
                     }
                 },
                 new Response.ErrorListener() {
@@ -230,8 +228,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
         );
-        requestQueue1.add(jsonObjectRequest);
-        return eta;
+        requestQueue.add(jsonObjectRequest);
     }
 
     private String parseGoogleData(JSONObject response) {
