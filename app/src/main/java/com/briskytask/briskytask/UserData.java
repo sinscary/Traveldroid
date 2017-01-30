@@ -5,9 +5,9 @@ package com.briskytask.briskytask;
  */
 public class UserData {
     private String id;
-    private String name, username, email, address, phone, website, company;
+    private String name, username, email, address, phone, website, company, timeToTravel;
 
-    public UserData(String id, String name, String username, String email, String address, String website, String phone, String company) {
+    public UserData(String id, String name, String username, String email, String address, String website, String phone, String company, String timeToTravel) {
         this.id = id;
         this.name = name;
         this.username = username;
@@ -16,7 +16,7 @@ public class UserData {
         this.website = website;
         this.phone = phone;
         this.company = company;
-        //this.time_to_travel = time_to_travel;
+        this.timeToTravel = timeToTravel;
     }
 
     public String getId() {
@@ -84,11 +84,11 @@ public class UserData {
         this.company = company;
     }
 
-    /*public String getTime_to_travel(){
-        return time_to_travel;
+    public String getTimeToTravel(){
+        return timeToTravel;
     }
 
-    public void setTime_to_travel(String time_to_travel){
-        this.time_to_travel = time_to_travel;
-    }*/
+    public void setTimeToTravel(String timeToTravel){
+        this.timeToTravel = timeToTravel;
+    }
 }

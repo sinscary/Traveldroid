@@ -44,10 +44,10 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private LinearLayoutManager linearLayoutManager;
     private CustomAdapter adapter;
-    private List<UserData> u_data;
+    private List<UserData> userData;
     private LocationManager locationManager;
     private LocationListener locationListener;
-    String origin, destination, mode = "driving";
+    String origin, mode = "driving";
     private String API = "AIzaSyD-tUsXFylNZrJwIHCf4fagJ1kjEUZjInM";
     TextView textView;
     RequestQueue requestQueue;
@@ -66,11 +66,9 @@ public class MainActivity extends AppCompatActivity {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                /*textView = (TextView) findViewById(R.id.timetravel);*/
                 double lat = location.getLatitude();
                 double lng = location.getLongitude();
                 origin = String.valueOf(lat)+","+String.valueOf(lng);
-                /*textView.setText(String.valueOf(lat)+" "+String.valueOf(lng));*/
             }
 
             @Override
@@ -103,66 +101,24 @@ public class MainActivity extends AppCompatActivity {
             locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
         }
 
-        u_data = new ArrayList<>();
 
-        get_data();
+        getData();
 
         linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
-        adapter = new CustomAdapter(this, u_data);
-        recyclerView.setAdapter(adapter);
 
     }
 
-    private void get_data(){
+    private void getData(){
+        userData = new ArrayList<>();
         requestQueue = Volley.newRequestQueue(this);
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(url,
                 new Response.Listener<JSONArray>() {
+
                     @Override
                     public void onResponse(JSONArray response) {
-                        try {
-                            for (int i = 0; i < response.length(); i++) {
-                                JSONObject users = response.getJSONObject(i);
-
-                                String id = ("id: "+users.getString("id"));
-                                String name = ("Name: "+users.getString("name"));
-                                String username = ("Username: "+users.getString("username"));
-                                String email = ("Email: "+users.getString("email"));
-
-
-                                JSONObject completeAdd = users.getJSONObject("address");
-                                String street = completeAdd.getString("street");
-                                String suite = completeAdd.getString("suite");
-                                String city = completeAdd.getString("city");
-                                String zipcode = completeAdd.getString("zipcode");
-                                String address = ("Address :"+street+", "+suite+", "+city+", "+zipcode);
-
-                                JSONObject coordinates = completeAdd.getJSONObject("geo");
-                                String latitude = coordinates.getString("lat");
-                                String longitude = coordinates.getString("lng");
-                                destination = latitude+","+longitude;
-                                get_time_to_travel(origin, destination, API, mode);
-                                //String time_to_travel = ("ETA: " );
-                                //System.out.println(time_arrival);
-
-
-                                String phone = ("Phone: "+users.getString("phone"));
-                                String website = ("Website: "+users.getString("website"));
-
-
-                                JSONObject companyDetail = users.getJSONObject("company");
-                                String company_name = companyDetail.getString("name");
-                                String catchPhrase = companyDetail.getString("catchPhrase");
-                                String bs = companyDetail.getString("bs");
-                                String company = ("Company: "+company_name+", "+catchPhrase+", "+bs);
-
-                                UserData udata = new UserData(id, name, username, email, address, phone, website, company);
-                                u_data.add(udata);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        parseJson(response);
                     }
                 },
 
@@ -176,31 +132,94 @@ public class MainActivity extends AppCompatActivity {
         requestQueue.add(jsonArrayRequest);
     }
 
-    private void get_time_to_travel(String origin, String destination, String API, String mode){
+    private void parseJson(JSONArray response){
+        try {
+            for (int i = 0; i < response.length(); i++) {
+                JSONObject users = response.getJSONObject(i);
+
+                String id = ("id: "+users.getString("id"));
+                String name = ("Name: "+users.getString("name"));
+                String username = ("Username: "+users.getString("username"));
+                String email = ("Email: "+users.getString("email"));
+                String address = parseAddress(users);
+                String destination = parseCoordinates(users);
+                String company = parseCompany(users);
+                String phone = ("Phone: "+users.getString("phone"));
+                String website = ("Website: "+users.getString("website"));
+                String eta = get_time_to_travel(origin, destination, API, mode);
+
+                UserData udata = new UserData(id, name, username, email, address, phone, website, company, eta);
+                userData.add(udata);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if(adapter == null){
+            adapter = new CustomAdapter(this, userData);
+            recyclerView.setAdapter(adapter);
+        }else{
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+
+    private String parseAddress(JSONObject users) {
+        JSONObject completeAdd = null;
+        String address = null;
+        try {
+            completeAdd = users.getJSONObject("address");
+            String street = completeAdd.getString("street");
+            String suite = completeAdd.getString("suite");
+            String city = completeAdd.getString("city");
+            String zipcode = completeAdd.getString("zipcode");
+            address = ("Address :" + street + ", " + suite + ", " + city + ", " + zipcode);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return address;
+    }
+
+    private String parseCoordinates(JSONObject users) {
+        JSONObject completeAdd = null;
+        String destination = null;
+        try {
+            completeAdd = users.getJSONObject("address");
+            JSONObject coordinates = completeAdd.getJSONObject("geo");
+            String latitude = coordinates.getString("lat");
+            String longitude = coordinates.getString("lng");
+            destination = latitude + "," + longitude;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return destination;
+    }
+
+    private String parseCompany(JSONObject users) {
+        JSONObject companyDetail = null;
+        String company = null;
+        try {
+            companyDetail = users.getJSONObject("company");
+            String company_name = companyDetail.getString("name");
+            String catchPhrase = companyDetail.getString("catchPhrase");
+            String bs = companyDetail.getString("bs");
+            company = ("Company: " + company_name + ", " + catchPhrase + ", " + bs);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return company;
+    }
+
+
+    private String get_time_to_travel(String origin, String destination, String API, String mode){
         requestQueue1 = Volley.newRequestQueue(this);
-        String google_api = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="+origin+"&destinations="+destination+"s&mode="+mode+"&language=fr-FR&key="+API;
+        String eta = null;
+        String google_api = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="+origin+"&destinations="
+                +destination+"s&mode="+mode+"&language=fr-FR&key="+API;
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, google_api, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray rows = response.getJSONArray("rows");
-
-                            JSONObject elements = rows.getJSONObject(0);
-
-                            JSONArray elementsArr = elements.getJSONArray("elements");
-                            JSONObject durationObj = elementsArr.getJSONObject(0);
-                            JSONObject durationArray = durationObj.getJSONObject("duration");
-
-                            //JSONObject duration = elements.getJSONObject(1);
-                            String time_arrival = durationArray.getString("text");
-                            TextView textView = (TextView) findViewById(R.id.timetravel);
-                            textView.setText("ETA: "+time_arrival);
-                            //System.out.println(time_arrival);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
+                        parseGoogleData(response);
                     }
                 },
                 new Response.ErrorListener() {
@@ -212,7 +231,25 @@ public class MainActivity extends AppCompatActivity {
 
         );
         requestQueue1.add(jsonObjectRequest);
-
-
+        return eta;
     }
+
+    private String parseGoogleData(JSONObject response) {
+        String estimated_time_arrival = null;
+        try {
+            JSONArray rows = response.getJSONArray("rows");
+
+            JSONObject elements = rows.getJSONObject(0);
+            JSONArray elementsArr = elements.getJSONArray("elements");
+
+            JSONObject durationObj = elementsArr.getJSONObject(0);
+            JSONObject durationData = durationObj.getJSONObject("duration");
+            estimated_time_arrival = durationData.getString("text");
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return estimated_time_arrival;
+    }
+
 }

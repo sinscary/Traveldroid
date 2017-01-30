@@ -16,11 +16,11 @@ import java.util.List;
  */
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder>{
     private Context context;
-    private List<UserData> u_data;
+    private List<UserData> userData;
 
-    public CustomAdapter(Context context, List<UserData> u_data) {
+    public CustomAdapter(Context context, List<UserData> userData) {
         this.context = context;
-        this.u_data = u_data;
+        this.userData = userData;
     }
 
     @Override
@@ -32,20 +32,20 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.id.setText(u_data.get(position).getId());
-        holder.name.setText(u_data.get(position).getName());
-        holder.username.setText(u_data.get(position).getUsername());
-        holder.email.setText(u_data.get(position).getEmail());
-        holder.address.setText(u_data.get(position).getAddress());
-        holder.phone.setText(u_data.get(position).getPhone());
-        holder.website.setText(u_data.get(position).getWebsite());
-        holder.company.setText(u_data.get(position).getCompany());
-        //holder.time_to_travel.setText(u_data.get(position).getTime_to_travel());
+        holder.id.setText(userData.get(position).getId());
+        holder.name.setText(userData.get(position).getName());
+        holder.username.setText(userData.get(position).getUsername());
+        holder.email.setText(userData.get(position).getEmail());
+        holder.address.setText(userData.get(position).getAddress());
+        holder.phone.setText(userData.get(position).getPhone());
+        holder.website.setText(userData.get(position).getWebsite());
+        holder.company.setText(userData.get(position).getCompany());
+        holder.timeToTravel.setText(userData.get(position).getTimeToTravel());
     }
 
     @Override
     public int getItemCount() {
-        return u_data.size();
+        return userData.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -58,7 +58,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         public TextView phone;
         public TextView website;
         public TextView company;
-        //public TextView time_to_travel;
+        public TextView timeToTravel;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -70,7 +70,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             phone = (TextView) itemView.findViewById(R.id.phone);
             website = (TextView) itemView.findViewById(R.id.website);
             company = (TextView) itemView.findViewById(R.id.company);
-            //time_to_travel = (TextView) itemView.findViewById(R.id.timetravel);
+            timeToTravel = (TextView) itemView.findViewById(R.id.timetravel);
         }
     }
 }
