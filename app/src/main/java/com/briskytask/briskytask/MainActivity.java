@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void getEtarrive(String origin, String destination, final int index){
-        String API = "AIzaSyD-tUsXFylNZrJwIHCf4fagJ1kjEUZjInM", mode="driving";
+        String API = "google_api_key", mode="driving";
         String google_api = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="+origin+"&destinations="
                 +destination+"s&mode="+mode+"&language=fr-FR&key="+API;
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, google_api, null,
